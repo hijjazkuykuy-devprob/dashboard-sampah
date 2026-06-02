@@ -1843,6 +1843,13 @@ input:checked + .slider:before {
 @media (max-width: 1024px) {
   .app-layout {
     flex-direction: column;
+    height: 100vh;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .main-container, .main-scrollable-content {
+    overflow: visible;
   }
   
   .sidebar {
@@ -1918,10 +1925,9 @@ input:checked + .slider:before {
     padding: 12px 16px;
     flex-wrap: wrap;
     gap: 12px;
-    position: sticky;
-    top: 0;
+    position: relative;
     background: rgba(8, 15, 30, 0.95);
-    z-index: 50;
+    z-index: 10;
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
   }
@@ -1976,14 +1982,15 @@ input:checked + .slider:before {
   .header-right {
     width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 12px;
   }
 
   .search-box-container {
     width: 100%;
-    order: 2;
+    order: 3;
   }
 
   .search-input-field {
@@ -1992,7 +1999,12 @@ input:checked + .slider:before {
 
   .live-status-pill {
     order: 1;
-    align-self: flex-start;
+    margin-right: auto;
+  }
+
+  .notification-bell {
+    order: 2;
+    margin-right: 0;
   }
 
   .quick-stats-row {
@@ -2052,6 +2064,52 @@ input:checked + .slider:before {
   .btn-control {
     padding: 12px 16px;
     font-size: 0.85rem;
+  }
+
+  .sidebar-footer {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .theme-switcher-box, .sim-switch-box {
+    width: 100%;
+  }
+
+  .capacity-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .capacity-status-badge {
+    align-self: flex-start;
+  }
+
+  .servo-status-indicator {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .logs-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logs-filter-group {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .terminal-window {
+    height: 400px;
+  }
+
+  .notif-dropdown {
+    right: -10px;
+    width: 260px;
   }
 }
 
