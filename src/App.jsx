@@ -16,12 +16,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+function AnimatedNumber({ value }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  useEffect(() => {
+    if (displayValue === value) return;
+    const step = value > displayValue ? 1 : -1;
+    const diff = Math.abs(value - displayValue);
+    const delay = diff > 20 ? 10 : 30;
+    const interval = setInterval(() => {
+      setDisplayValue(prev => {
+        if (prev === value) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + step;
+      });
+    }, delay);
+    return () => clearInterval(interval);
+  }, [value, displayValue]);
+  return <span>{displayValue}</span>;
+}
+
 function App() {
   
   const [activeTab, setActiveTab] = useState('overview'); 
   const [selectedBinId, setSelectedBinId] = useState('TRASH-01');
   const [searchQuery, setSearchQuery] = useState('');
   const [toasts, setToasts] = useState([]);
+  const [showNotifBox, setShowNotifBox] = useState(false);
   
   const ambientRef = useRef(null);
 
@@ -114,6 +136,8 @@ function App() {
   const dataTerpilih = daftarTempatSampah.find(
     trash => trash.id === selectedBinId
   ) || daftarTempatSampah[0];
+
+  const hasWarning = daftarTempatSampah.some(bin => bin.kapasitas > 90);
 
   useEffect(() => {
     
@@ -325,6 +349,7 @@ function App() {
 
   return (
     <div className="app-layout">
+      <div className="ambient-particles"></div>
       
       <div className="cursor-glow-ambient" ref={ambientRef}></div>
 
@@ -385,7 +410,8 @@ function App() {
                 }}
                 className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
               >
-                ☀️ Terang
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                Terang
               </button>
               <button 
                 onClick={() => {
@@ -395,7 +421,8 @@ function App() {
                 }}
                 className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
               >
-                🌙 Gelap
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                Gelap
               </button>
               <button 
                 onClick={() => {
@@ -405,7 +432,8 @@ function App() {
                 }}
                 className={`theme-btn ${theme === 'auto' ? 'active' : ''}`}
               >
-                🖥️ Auto
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                Auto
               </button>
             </div>
           </div>
@@ -450,6 +478,37 @@ function App() {
 
             <div className="header-right">
               
+              <div 
+                className={`notification-bell ${hasWarning ? 'ringing' : ''}`}
+                onClick={() => setShowNotifBox(!showNotifBox)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {hasWarning && <span className="notification-dot"></span>}
+
+                {showNotifBox && (
+                  <div className="notif-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <div className="notif-header">Notifikasi Sistem</div>
+                    <div className="notif-body">
+                      {daftarTempatSampah.filter(b => b.kapasitas > 90).length > 0 ? (
+                        daftarTempatSampah.filter(b => b.kapasitas > 90).map(b => (
+                          <div key={b.id} className="notif-item warning">
+                            <strong>⚠️ {b.id} ({b.kapasitas}%)</strong><br/>
+                            Hampir penuh di lokasi {b.lokasi}! Segera jadwalkan pengangkutan.
+                          </div>
+                        ))
+                      ) : (
+                        <div className="notif-item success">
+                          ✅ Semua tempat sampah dalam keadaan aman.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="search-box-container">
                 <span className="search-icon-svg">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
@@ -661,6 +720,16 @@ function App() {
                         
                         <circle cx="80" cy="40" r="2.5" fill={dataTerpilih.servo === 1 ? 'var(--status-green)' : 'var(--status-red)'} className="lid-sensor-dot" />
                       </g>
+
+                      {dataTerpilih.kapasitas > 80 && dataTerpilih.servo !== 1 && (
+                        <g className="smell-particles">
+                          <circle cx="60" cy="20" r="1.5" fill="#a3e635" className="fly-1" />
+                          <circle cx="100" cy="15" r="2" fill="#a3e635" className="fly-2" />
+                          <circle cx="80" cy="5" r="1.5" fill="#a3e635" className="fly-3" />
+                          <path d="M 60,30 Q 70,10 80,0" fill="none" stroke="#bef264" strokeWidth="2" strokeDasharray="4" opacity="0.6" className="smoke-1" />
+                          <path d="M 90,35 Q 100,15 110,-5" fill="none" stroke="#bef264" strokeWidth="2" strokeDasharray="4" opacity="0.6" className="smoke-2" />
+                        </g>
+                      )}
                     </svg>
 
                     <div className="trashbin-overlay-text" style={{ display: 'none' }}>
@@ -674,8 +743,8 @@ function App() {
                   <div className="capacity-status-section">
                     <div className="capacity-info-row">
                       <div className="capacity-info-left">
-                        <span className="capacity-percent-val" style={{ color: currentLiquidColor }}>
-                          {dataTerpilih.kapasitas}%
+                        <span className="capacity-percent-value" style={{ color: currentLiquidColor }}>
+                          <AnimatedNumber value={dataTerpilih.kapasitas} />%
                         </span>
                         <div className="capacity-text-group">
                           <span className="capacity-percent-lbl">Kapasitas Terisi</span>
@@ -753,8 +822,9 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="map-container-svg">
-                    <svg className="map-canvas" viewBox="10 30 380 240">
+                  <div className="map-container-svg" style={{ position: 'relative', overflow: 'hidden' }}>
+                    <div className="radar-sweep"></div>
+                    <svg className="map-canvas" viewBox="10 30 380 240" style={{ position: 'relative', zIndex: 2 }}>
                       
                       <g className="map-grid-lines">
                         <path d="M 0,50 L 400,50 M 0,100 L 400,100 M 0,150 L 400,150 M 0,200 L 400,200 M 0,250 L 400,250" />
@@ -778,6 +848,10 @@ function App() {
                         <circle cx="95" cy="70" r="14" fill={getLiquidColor(firebaseKapasitas)} className="map-pin-pulse" />
                         <circle cx="95" cy="70" r="6" fill={getLiquidColor(firebaseKapasitas)} className="map-pin-dot" />
                         <text x="95" y="50" fill="var(--text-primary)" fontSize="8" fontWeight="bold" textAnchor="middle" style={{ pointerEvents: 'none' }}>TRASH-01</text>
+                        <g className="map-tooltip">
+                          <rect x="70" y="30" width="50" height="14" rx="2" fill="rgba(15,23,42,0.9)" />
+                          <text x="95" y="40" fill="white" fontSize="7" textAnchor="middle">Kapasitas: {firebaseKapasitas}%</text>
+                        </g>
                       </g>
 
                       <g 
@@ -787,6 +861,10 @@ function App() {
                         <circle cx="200" cy="215" r="14" fill={getLiquidColor(simKapasitas2)} className="map-pin-pulse" />
                         <circle cx="200" cy="215" r="6" fill={getLiquidColor(simKapasitas2)} className="map-pin-dot" />
                         <text x="200" y="202" fill="var(--text-primary)" fontSize="8" fontWeight="bold" textAnchor="middle" style={{ pointerEvents: 'none' }}>TRASH-02</text>
+                        <g className="map-tooltip">
+                          <rect x="175" y="182" width="50" height="14" rx="2" fill="rgba(15,23,42,0.9)" />
+                          <text x="200" y="192" fill="white" fontSize="7" textAnchor="middle">Kapasitas: {simKapasitas2}%</text>
+                        </g>
                       </g>
 
                       <g 
@@ -796,6 +874,10 @@ function App() {
                         <circle cx="295" cy="70" r="14" fill={getLiquidColor(simKapasitas3)} className="map-pin-pulse" />
                         <circle cx="295" cy="70" r="6" fill={getLiquidColor(simKapasitas3)} className="map-pin-dot" />
                         <text x="295" y="50" fill="var(--text-primary)" fontSize="8" fontWeight="bold" textAnchor="middle" style={{ pointerEvents: 'none' }}>TRASH-03</text>
+                        <g className="map-tooltip">
+                          <rect x="270" y="30" width="50" height="14" rx="2" fill="rgba(15,23,42,0.9)" />
+                          <text x="295" y="40" fill="white" fontSize="7" textAnchor="middle">Kapasitas: {simKapasitas3}%</text>
+                        </g>
                       </g>
                     </svg>
                   </div>
@@ -823,7 +905,7 @@ function App() {
                             <span className="preview-loc">{bin.lokasi}</span>
                           </div>
                           <span className="preview-value-text" style={{ color: binColor }}>
-                            {bin.kapasitas}%
+                            <AnimatedNumber value={bin.kapasitas} />%
                           </span>
                         </div>
 
