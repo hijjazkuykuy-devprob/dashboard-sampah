@@ -39,6 +39,10 @@ function App() {
 
   const [simulasiAktif, setSimulasiAktif] = useState(true);
 
+  const [lastEmptied1, setLastEmptied1] = useState(new Date(Date.now() - 1000 * 60 * 60 * 2));
+  const [lastEmptied2, setLastEmptied2] = useState(new Date(Date.now() - 1000 * 60 * 45));
+  const [lastEmptied3, setLastEmptied3] = useState(new Date(Date.now() - 1000 * 60 * 60 * 5));
+
   const [logs, setLogs] = useState([
     { time: '22:00:01', type: 'info', msg: 'Smart Trash Pro System Initialized.' },
     { time: '22:00:03', type: 'success', msg: 'FIREBASE: Connected to Realtime Database successfully.' },
@@ -53,6 +57,14 @@ function App() {
   const getFormattedTime = () => {
     const now = new Date();
     return now.toTimeString().split(' ')[0];
+  };
+
+  const getTimeAgo = (date) => {
+    const diffMs = Date.now() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins} menit lalu`;
+    const diffHours = Math.floor(diffMins / 60);
+    return `${diffHours} jam ${diffMins % 60} mnt lalu`;
   };
 
   const addLog = (msg, type = 'info') => {
@@ -78,21 +90,24 @@ function App() {
       lokasi: 'LAB IoT - UTAMA',
       kapasitas: firebaseKapasitas, 
       servo: firebaseServo,         
-      isFirebase: true
+      isFirebase: true,
+      lastEmptied: lastEmptied1
     },
     {
       id: 'TRASH-02',
       lokasi: 'KORIDOR GEDUNG D3',
       kapasitas: simKapasitas2, 
       servo: simServo2,
-      isFirebase: false
+      isFirebase: false,
+      lastEmptied: lastEmptied2
     },
     {
       id: 'TRASH-03',
       lokasi: 'LAB KOMPUTER 2',
       kapasitas: simKapasitas3, 
       servo: simServo3,
-      isFirebase: false
+      isFirebase: false,
+      lastEmptied: lastEmptied3
     }
   ];
 
@@ -272,7 +287,7 @@ function App() {
     if (targetBin.isFirebase) {
       set(ref(db, 'servo'), nilai)
         .then(() => {
-          showToast(`Berhasil mengubah status servo ${binId} menjadi ${statusText}!`, 'success');
+          showToast(`Berhasil mengubah status servo ${binId} menjadi ${statusText}!`, nilai === 1 ? 'success' : 'closed');
           addLog(`USER: Mengirim perintah servo ${statusText} ke ${binId} (Sukses)`, 'success');
         })
         .catch((err) => {
@@ -285,7 +300,7 @@ function App() {
       } else if (binId === 'TRASH-03') {
         setSimServo3(nilai);
       }
-      showToast(`Simulasi: Mengubah servo ${binId} menjadi ${statusText}!`, 'info');
+      showToast(`Simulasi: Mengubah servo ${binId} menjadi ${statusText}!`, nilai === 1 ? 'info' : 'closed');
       addLog(`USER: Simulasi perintah servo ${statusText} dikirim ke ${binId}`, 'info');
     }
   };
@@ -414,10 +429,7 @@ function App() {
             </label>
           </div>
 
-          <div className="team-badge">
-            © 2026 Smart City Pro<br/>
-            Universitas Brawijaya
-          </div>
+
         </div>
       </aside>
 
@@ -543,7 +555,7 @@ function App() {
                       <defs>
                         
                         <clipPath id="bin-body-clip">
-                          <path d="M 30,50 L 130,50 L 120,220 C 120,225 115,230 110,230 L 50,230 C 45,230 40,225 40,220 Z" />
+                          <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" />
                         </clipPath>
                         
                         <linearGradient id="glass-reflect" x1="0" y1="0" x2="1" y2="0">
@@ -554,10 +566,11 @@ function App() {
                         </linearGradient>
                       </defs>
 
-                      <path d="M 30,50 L 130,50 L 120,220 C 120,225 115,230 110,230 L 50,230 C 45,230 40,225 40,220 Z" 
+                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" 
                             fill="var(--bin-body-bg)" 
                             stroke="var(--bin-body-border)" 
-                            strokeWidth="3.5" />
+                            strokeWidth="3.5" 
+                            className={dataTerpilih.kapasitas > 80 ? 'warning-glow-bin' : ''} />
 
                       <g clipPath="url(#bin-body-clip)">
                         
@@ -569,34 +582,55 @@ function App() {
                               
                               <path 
                                 d={`M -40,${yLevel} 
-                                    C 10,${yLevel - 6} 40,${yLevel + 6} 90,${yLevel} 
-                                    C 140,${yLevel - 6} 170,${yLevel + 6} 210,${yLevel} 
+                                    L 20,${yLevel} 
+                                    L 40,${yLevel - 8} 
+                                    L 60,${yLevel + 5} 
+                                    L 80,${yLevel - 5} 
+                                    L 100,${yLevel + 8} 
+                                    L 120,${yLevel - 2} 
+                                    L 140,${yLevel} 
+                                    L 210,${yLevel} 
                                     L 210,240 L -40,240 Z`} 
                                 fill={currentLiquidColor} 
-                                opacity="0.8" 
-                                className="bin-wave-path"
+                                opacity="0.85" 
+                                className="bin-solid-path"
                               />
                               
                               <path 
                                 d={`M -40,${yLevel} 
-                                    C 20,${yLevel + 6} 50,${yLevel - 6} 100,${yLevel} 
-                                    C 150,${yLevel + 6} 180,${yLevel - 6} 210,${yLevel} 
+                                    L 30,${yLevel + 5} 
+                                    L 50,${yLevel - 5} 
+                                    L 70,${yLevel + 10} 
+                                    L 90,${yLevel - 8} 
+                                    L 110,${yLevel + 5} 
+                                    L 130,${yLevel - 2} 
+                                    L 150,${yLevel + 5} 
+                                    L 210,${yLevel} 
                                     L 210,240 L -40,240 Z`} 
                                 fill={currentLiquidColor} 
-                                opacity="0.35" 
-                                className="bin-wave-path-back"
+                                opacity="0.4" 
+                                className="bin-solid-path-back"
                               />
+                              {pct > 20 && (
+                                <g className="trash-debris" fill="rgba(0,0,0,0.12)">
+                                  <polygon points={`45,${yLevel+15} 65,${yLevel+5} 75,${yLevel+20} 50,${yLevel+30}`} />
+                                  <polygon points={`85,${yLevel+10} 105,${yLevel+2} 115,${yLevel+15} 90,${yLevel+25}`} />
+                                  <polygon points={`55,${yLevel+35} 85,${yLevel+25} 95,${yLevel+45} 65,${yLevel+50}`} />
+                                  <polygon points={`75,${yLevel+55} 105,${yLevel+45} 120,${yLevel+60} 85,${yLevel+75}`} />
+                                  <polygon points={`40,${yLevel+60} 60,${yLevel+50} 70,${yLevel+70} 50,${yLevel+80}`} />
+                                </g>
+                              )}
                             </g>
                           );
                         })()}
                       </g>
 
-                      <path d="M 60,70 L 65,210 M 80,70 L 80,210 M 100,70 L 95,210" 
+                      <path d="M 55,70 L 55,210 M 80,70 L 80,210 M 105,70 L 105,210" 
                             stroke="var(--bin-rib-stroke)" 
                             strokeWidth="3.5" 
                             strokeLinecap="round" />
 
-                      <path d="M 30,50 L 130,50 L 120,220 C 120,225 115,230 110,230 L 50,230 C 45,230 40,225 40,220 Z" 
+                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" 
                             fill="url(#glass-reflect)" 
                             pointerEvents="none" />
 
@@ -643,7 +677,10 @@ function App() {
                         <span className="capacity-percent-val" style={{ color: currentLiquidColor }}>
                           {dataTerpilih.kapasitas}%
                         </span>
-                        <span className="capacity-percent-lbl">Kapasitas Terisi</span>
+                        <div className="capacity-text-group">
+                          <span className="capacity-percent-lbl">Kapasitas Terisi</span>
+                          <span className="capacity-last-emptied">Terakhir dikosongkan: {getTimeAgo(dataTerpilih.lastEmptied)}</span>
+                        </div>
                       </div>
                       <div className="capacity-status-badge" style={{ color: currentLiquidColor, borderColor: currentLiquidColor }}>
                         {dataTerpilih.kapasitas > 80 ? 'PENUH' : 'TERSEDIA'}
@@ -717,7 +754,7 @@ function App() {
                   </div>
 
                   <div className="map-container-svg">
-                    <svg className="map-canvas" viewBox="0 0 400 300">
+                    <svg className="map-canvas" viewBox="10 30 380 240">
                       
                       <g className="map-grid-lines">
                         <path d="M 0,50 L 400,50 M 0,100 L 400,100 M 0,150 L 400,150 M 0,200 L 400,200 M 0,250 L 400,250" />
@@ -1052,9 +1089,7 @@ function App() {
 
         </main>
 
-        <footer className="dashboard-footer">
-          © 2026 Smart City IoT System • Universitas Brawijaya • Teknik Informatika
-        </footer>
+
 
       </div>
 
@@ -1065,12 +1100,14 @@ function App() {
               {toast.type === 'success' && '✓'}
               {toast.type === 'error' && '✕'}
               {toast.type === 'info' && 'i'}
+              {toast.type === 'closed' && '✕'}
             </div>
             <div className="toast-content">
               <div className="toast-title">
                 {toast.type === 'success' && 'BERHASIL'}
                 {toast.type === 'error' && 'GAGAL'}
                 {toast.type === 'info' && 'SIMULASI'}
+                {toast.type === 'closed' && 'TERTUTUP'}
               </div>
               <div className="toast-message">{toast.message}</div>
             </div>

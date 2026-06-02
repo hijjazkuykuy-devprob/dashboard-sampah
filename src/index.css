@@ -163,7 +163,8 @@ h1, h2, h3, h4 {
   box-shadow: 0 12px 32px var(--status-green-glow), 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.toast-item.toast-error {
+.toast-item.toast-error,
+.toast-item.toast-closed {
   border-left: 4px solid var(--status-red);
   box-shadow: 0 12px 32px var(--status-red-glow), 0 10px 30px rgba(0, 0, 0, 0.1);
 }
@@ -190,7 +191,8 @@ h1, h2, h3, h4 {
   color: var(--status-green);
 }
 
-.toast-error .toast-icon {
+.toast-error .toast-icon,
+.toast-closed .toast-icon {
   background: var(--status-red-glow);
   color: var(--status-red);
 }
@@ -215,7 +217,8 @@ h1, h2, h3, h4 {
 }
 
 .toast-success .toast-title { color: var(--status-green); }
-.toast-error .toast-title { color: var(--status-red); }
+.toast-error .toast-title,
+.toast-closed .toast-title { color: var(--status-red); }
 .toast-info .toast-title { color: var(--accent-blue); }
 
 .toast-message {
@@ -251,7 +254,8 @@ h1, h2, h3, h4 {
 }
 
 .toast-success .toast-progress-bar { background: var(--status-green); }
-.toast-error .toast-progress-bar { background: var(--status-red); }
+.toast-error .toast-progress-bar,
+.toast-closed .toast-progress-bar { background: var(--status-red); }
 .toast-info .toast-progress-bar { background: var(--accent-blue); }
 
 @keyframes toastProgressRun {
@@ -2058,4 +2062,43 @@ input:checked + .slider:before {
 
 :root.light-theme .cursor-glow-ambient {
   background: radial-gradient(circle, rgba(2, 132, 199, 0.12) 0%, rgba(8, 145, 178, 0.04) 40%, transparent 70%);
+}
+
+.warning-glow-bin {
+  filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6));
+  animation: pulseBinGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseBinGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4)); }
+  50% { filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.8)); }
+  100% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4)); }
+}
+
+.trash-particles circle {
+  fill: rgba(255, 255, 255, 0.6);
+  animation: floatParticle 3s infinite ease-in;
+}
+
+.trash-particles circle:nth-child(1) { animation-duration: 2.5s; animation-delay: 0.2s; }
+.trash-particles circle:nth-child(2) { animation-duration: 3.2s; animation-delay: 0.5s; }
+.trash-particles circle:nth-child(3) { animation-duration: 2.8s; animation-delay: 0.1s; }
+.trash-particles circle:nth-child(4) { animation-duration: 3.5s; animation-delay: 0.7s; }
+
+@keyframes floatParticle {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.5); opacity: 0; }
+}
+
+.capacity-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.capacity-last-emptied {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
