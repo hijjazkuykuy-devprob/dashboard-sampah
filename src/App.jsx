@@ -152,7 +152,7 @@ function App() {
         <main className="dashboard-grid">
           <section className="dashboard-card">
             <p className="card-label">KAPASITAS ({dataTerpilih.id})</p>
-            <div className="capacity-value notranslate" translate="no" style={{ color: statusColor, fontSize: isMobile ? '4.2rem' : '5.5rem' }}>
+            <div className="capacity-value notranslate" translate="no" style={{ color: statusColor, fontSize: isMobile ? '4.2rem' : '7rem' }}>
               {dataTerpilih.kapasitas}%
             </div>
             <div className="progress-track">
@@ -174,7 +174,7 @@ function App() {
             
             <div className={`servo-icon-wrapper ${dataTerpilih.servo === 1 ? 'open' : 'closed'}`}>
               {dataTerpilih.servo === 1 ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="60" height="60">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="80" height="80">
                   <path d="M14 16 L32 6 L50 14 L14 16" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M18 22 L21 54 C21 56, 23 58, 25 58 L39 58 C41 58, 43 56, 43 54 L46 22 Z" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinejoin="round"/>
                   <line x1="26" y1="28" x2="28" y2="52" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round"/>
@@ -183,7 +183,7 @@ function App() {
                   <path d="M29 58 L35 58 L37 61 L27 61 Z" fill="none" stroke="#10b981" strokeWidth="2"/>
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="60" height="60">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="80" height="80">
                   <path d="M14 18 L50 18 L46 14 L18 14 Z" fill="none" stroke="#f43f5e" strokeWidth="3.5" strokeLinecap="round"/>
                   <path d="M28 14 L36 14 L35 11 L29 11 Z" fill="none" stroke="#f43f5e" strokeWidth="2"/>
                   <path d="M16 20 L20 54 C20 56, 22 58, 24 58 L40 58 C42 58, 44 56, 44 54 L48 20 Z" fill="none" stroke="#f43f5e" strokeWidth="3.5" strokeLinejoin="round"/>
