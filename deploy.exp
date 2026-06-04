@@ -1,0 +1,45 @@
+#!/usr/bin/expect -f
+set timeout 10
+set host "10.35.96.202"
+set user "vm17"
+set pass "vm17"
+
+# 1. Create directory G4 on VPS
+spawn ssh -o StrictHostKeyChecking=no $user@$host "mkdir -p ~/G4"
+expect {
+    "password:" {
+        send "$pass\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "Permission denied"
+        exit 1
+    }
+    eof {
+        puts "Directory creation finished"
+    }
+    timeout {
+        puts "Timeout connecting to host via SSH"
+        exit 1
+    }
+}
+
+# 2. SCP the dist folder contents to G4 on VPS
+spawn scp -o StrictHostKeyChecking=no -r /Users/mac/Documents/Tugas\ Semester\ 4/dashboard-sampah/dist/. $user@$host:~/G4/
+expect {
+    "password:" {
+        send "$pass\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "Permission denied during SCP"
+        exit 1
+    }
+    eof {
+        puts "SCP finished"
+    }
+    timeout {
+        puts "Timeout connecting to host via SCP"
+        exit 1
+    }
+}

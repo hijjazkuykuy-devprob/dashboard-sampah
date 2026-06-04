@@ -288,6 +288,16 @@ h1, h2, h3, h4 {
   background: radial-gradient(circle at 60% 0%, #e0f2fe 0%, #f1f5f9 100%);
 }
 
+@keyframes floatAmbient1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 30px) scale(1.1); }
+}
+
+@keyframes floatAmbient2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, -50px) scale(1.05); }
+}
+
 .app-layout::before {
   content: '';
   position: absolute;
@@ -298,6 +308,7 @@ h1, h2, h3, h4 {
   background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
+  animation: floatAmbient1 15s ease-in-out infinite;
 }
 
 :root.light-theme .app-layout::before {
@@ -314,6 +325,7 @@ h1, h2, h3, h4 {
   background: radial-gradient(circle, rgba(16, 185, 129, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
+  animation: floatAmbient2 18s ease-in-out infinite;
 }
 
 :root.light-theme .app-layout::after {
@@ -741,6 +753,11 @@ input:checked + .slider:before {
   width: 100%;
 }
 
+@keyframes fadeUpCard {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -750,6 +767,31 @@ input:checked + .slider:before {
   align-items: center;
   gap: 16px;
   transition: all 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+  animation: fadeUpCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transform: skewX(-20deg);
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+:root.light-theme .stat-card::after {
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
 
 .stat-card:hover {
@@ -759,10 +801,30 @@ input:checked + .slider:before {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.stat-card:hover::after {
+  left: 150%;
+  transition: all 0.7s ease;
+}
+
 :root.light-theme .stat-card:hover {
   border-color: rgba(15, 23, 42, 0.15);
   background: #ffffff;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes pulseRedAlert {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.8); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.4); }
+}
+
+.alert-pulse-card {
+  animation: fadeUpCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) both, pulseRedAlert 2s infinite;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+:root.light-theme .alert-pulse-card {
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .stat-icon-box {
