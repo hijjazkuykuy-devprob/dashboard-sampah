@@ -44,6 +44,13 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [toasts, setToasts] = useState([]);
   const [showNotifBox, setShowNotifBox] = useState(false);
+
+  // === SECURITY IMPLEMENTATION (LOGIN & RATE LIMITING) ===
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTimeLeft, setLockTimeLeft] = useState(0);
   
   const ambientRef = useRef(null);
 
@@ -346,6 +353,186 @@ function App() {
     if (logFilter === 'all') return true;
     return log.type === logFilter;
   });
+
+  // === SECURITY LOGIC (RATE LIMITING TIMER) ===
+  useEffect(() => {
+    if (isLocked && lockTimeLeft > 0) {
+      const timer = setTimeout(() => setLockTimeLeft(lockTimeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (isLocked && lockTimeLeft === 0) {
+      setIsLocked(false);
+      setLoginAttempts(0);
+    }
+  }, [isLocked, lockTimeLeft]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (isLocked) return;
+    
+    if (loginPassword === 'vokasi2026') {
+      setIsLoggedIn(true);
+      showToast('Autentikasi berhasil! Selamat datang Admin.', 'success');
+      addLog('SECURITY: Admin successfully logged in from VPN network.', 'success');
+    } else {
+      const newAttempts = loginAttempts + 1;
+      setLoginAttempts(newAttempts);
+      if (newAttempts >= 3) {
+        setIsLocked(true);
+        setLockTimeLeft(10);
+        showToast('AKSES DIBLOKIR: Terlalu banyak percobaan gagal. Coba lagi dalam 10 detik.', 'error');
+      } else {
+        showToast(`Password salah! Sisa percobaan: ${3 - newAttempts}`, 'error');
+      }
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="app-layout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div className="ambient-particles"></div>
+        <div className="cursor-glow-ambient" ref={ambientRef}></div>
+        
+        {/* Animated Background Orbs for Login */}
+        <div style={{ position: 'absolute', top: '10%', left: '15%', width: '40vw', height: '40vw', background: 'var(--accent-blue-glow)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0, animation: 'floatAmbient1 20s infinite alternate' }}></div>
+        <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: '35vw', height: '35vw', background: 'var(--status-green-glow)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0, animation: 'floatAmbient2 15s infinite alternate' }}></div>
+
+        <div style={{
+          zIndex: 10,
+          padding: '48px 40px',
+          borderRadius: '24px',
+          background: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(40px)',
+          WebkitBackdropFilter: 'blur(40px)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
+          width: '100%',
+          maxWidth: '420px',
+          textAlign: 'center',
+          animation: 'toastSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Top Edge Glow */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, transparent, var(--accent-blue), transparent)', opacity: 0.8 }}></div>
+
+          <div style={{ 
+            width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.02)'
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M12 8v4"></path>
+              <path d="M12 16h.01"></path>
+            </svg>
+          </div>
+
+          <h2 style={{ marginBottom: '8px', color: 'var(--text-primary)', fontWeight: '900', fontSize: '1.8rem', letterSpacing: '-0.5px' }}>
+            SMART TRASH <span style={{ color: 'transparent', backgroundClip: 'text', WebkitBackgroundClip: 'text', backgroundImage: 'linear-gradient(90deg, var(--accent-blue), var(--accent-cyan))' }}>PRO</span>
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '36px', fontSize: '0.95rem' }}>
+            Restricted Access. Authentication Required.
+          </p>
+          
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ textAlign: 'left', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <input 
+                type="password" 
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Administrator Password"
+                disabled={isLocked}
+                style={{
+                  width: '100%', padding: '16px 16px 16px 48px', borderRadius: '14px',
+                  backgroundColor: 'rgba(0,0,0,0.3)', 
+                  border: `1px solid ${isLocked || (loginAttempts > 0 && !isLocked) ? 'var(--status-red)' : 'rgba(255,255,255,0.08)'}`,
+                  color: 'var(--text-primary)', fontSize: '1rem', outline: 'none', boxSizing: 'border-box',
+                  transition: 'all 0.3s',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                onFocus={(e) => { e.target.style.borderColor = 'var(--accent-blue)'; e.target.style.backgroundColor = 'rgba(0,0,0,0.4)'; }}
+                onBlur={(e) => { e.target.style.borderColor = isLocked || (loginAttempts > 0 && !isLocked) ? 'var(--status-red)' : 'rgba(255,255,255,0.08)'; e.target.style.backgroundColor = 'rgba(0,0,0,0.3)'; }}
+              />
+              {/* Peringatan Teks Error di bawah input */}
+              {loginAttempts > 0 && !isLocked && (
+                <p style={{ color: 'var(--status-red)', fontSize: '0.85rem', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  Password salah! Sisa percobaan: {3 - loginAttempts}
+                </p>
+              )}
+              {isLocked && (
+                <p style={{ color: 'var(--status-red)', fontSize: '0.85rem', marginTop: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Sistem terkunci. Coba lagi dalam {lockTimeLeft}s.
+                </p>
+              )}
+            </div>
+            <button 
+              type="submit" 
+              disabled={isLocked || !loginPassword}
+              style={{
+                padding: '16px', borderRadius: '14px', border: 'none',
+                background: isLocked ? 'rgba(0,0,0,0.3)' : 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%)', 
+                color: isLocked ? 'var(--text-muted)' : '#ffffff', 
+                fontWeight: '700', fontSize: '1.05rem', cursor: isLocked ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: isLocked ? 'none' : '0 8px 20px rgba(6, 182, 212, 0.25)',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}
+            >
+              {isLocked ? `LOCKED (${lockTimeLeft}s)` : 'Login'}
+            </button>
+          </form>
+
+          <div style={{ marginTop: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--status-green)', boxShadow: '0 0 10px var(--status-green)' }}></div>
+              Protected by WireGuard VPN & Rate Limiting
+            </div>
+          </div>
+        </div>
+
+        {/* Notifikasi Toast untuk halaman Login */}
+        <div className="toast-container">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`toast-item toast-${toast.type}`}>
+              <div className="toast-icon">
+                {toast.type === 'success' && '✓'}
+                {toast.type === 'error' && '✕'}
+                {toast.type === 'info' && 'i'}
+                {toast.type === 'closed' && '✕'}
+              </div>
+              <div className="toast-content">
+                <div className="toast-title">
+                  {toast.type === 'success' && 'BERHASIL'}
+                  {toast.type === 'error' && 'GAGAL'}
+                  {toast.type === 'info' && 'INFO'}
+                  {toast.type === 'closed' && 'TERTUTUP'}
+                </div>
+                <div className="toast-message">{toast.message}</div>
+              </div>
+              <button 
+                className="toast-close" 
+                onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+              >
+                &times;
+              </button>
+              <div className="toast-progress-bar"></div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    );
+  }
 
   return (
     <div className="app-layout">
