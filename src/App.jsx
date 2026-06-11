@@ -38,8 +38,8 @@ function AnimatedNumber({ value }) {
 }
 
 function App() {
-  
-  const [activeTab, setActiveTab] = useState('overview'); 
+
+  const [activeTab, setActiveTab] = useState('overview');
   const [selectedBinId, setSelectedBinId] = useState('TRASH-01');
   const [searchQuery, setSearchQuery] = useState('');
   const [toasts, setToasts] = useState([]);
@@ -51,15 +51,15 @@ function App() {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockTimeLeft, setLockTimeLeft] = useState(0);
-  
+
   const ambientRef = useRef(null);
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'auto';
   });
 
-  const [firebaseKapasitas, setFirebaseKapasitas] = useState(0); 
-  const [firebaseServo, setFirebaseServo] = useState(0); 
+  const [firebaseKapasitas, setFirebaseKapasitas] = useState(0);
+  const [firebaseServo, setFirebaseServo] = useState(0);
 
   const [simKapasitas2, setSimKapasitas2] = useState(45);
   const [simServo2, setSimServo2] = useState(0);
@@ -102,7 +102,7 @@ function App() {
       type,
       msg
     };
-    setLogs((prev) => [...prev, newLog].slice(-100)); 
+    setLogs((prev) => [...prev, newLog].slice(-100));
   };
 
   const showToast = (message, type = 'info') => {
@@ -117,15 +117,15 @@ function App() {
     {
       id: 'TRASH-01',
       lokasi: 'LAB IoT - UTAMA',
-      kapasitas: firebaseKapasitas, 
-      servo: firebaseServo,         
+      kapasitas: firebaseKapasitas,
+      servo: firebaseServo,
       isFirebase: true,
       lastEmptied: lastEmptied1
     },
     {
       id: 'TRASH-02',
       lokasi: 'KORIDOR GEDUNG D3',
-      kapasitas: simKapasitas2, 
+      kapasitas: simKapasitas2,
       servo: simServo2,
       isFirebase: false,
       lastEmptied: lastEmptied2
@@ -133,7 +133,7 @@ function App() {
     {
       id: 'TRASH-03',
       lokasi: 'LAB KOMPUTER 2',
-      kapasitas: simKapasitas3, 
+      kapasitas: simKapasitas3,
       servo: simServo3,
       isFirebase: false,
       lastEmptied: lastEmptied3
@@ -147,7 +147,7 @@ function App() {
   const hasWarning = daftarTempatSampah.some(bin => bin.kapasitas > 90);
 
   useEffect(() => {
-    
+
     const kapasitasRef = ref(db, 'kapasitas');
     const unsubscribeKapasitas = onValue(kapasitasRef, (snapshot) => {
       const data = snapshot.val();
@@ -178,9 +178,9 @@ function App() {
     if (!simulasiAktif) return;
 
     const interval = setInterval(() => {
-      
+
       setSimKapasitas2((prev) => {
-        const delta = Math.floor(Math.random() * 5) - 1; 
+        const delta = Math.floor(Math.random() * 5) - 1;
         const next = Math.max(10, Math.min(98, prev + delta));
         if (delta > 0 && Math.random() > 0.7) {
           addLog(`TRASH-02: Terdeteksi aktivitas pembuangan sampah. Kapasitas: ${next}%`, next > 80 ? 'warning' : 'info');
@@ -189,7 +189,7 @@ function App() {
       });
 
       setSimKapasitas3((prev) => {
-        const delta = Math.floor(Math.random() * 5) - 2; 
+        const delta = Math.floor(Math.random() * 5) - 2;
         const next = Math.max(15, Math.min(99, prev + delta));
         if (delta > 0 && Math.random() > 0.8) {
           addLog(`TRASH-03: Sensor berat mendeteksi peningkatan volume. Kapasitas: ${next}%`, next > 80 ? 'warning' : 'info');
@@ -218,7 +218,7 @@ function App() {
       if (currentTheme === 'auto') {
         resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
-      
+
       const root = document.documentElement;
       if (resolvedTheme === 'light') {
         root.classList.add('light-theme');
@@ -231,7 +231,7 @@ function App() {
 
     applyTheme(theme);
     localStorage.setItem('theme', theme);
-    
+
     if (theme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applyTheme('auto');
@@ -312,7 +312,7 @@ function App() {
   const handleKontrol = (binId, nilai) => {
     const statusText = nilai === 1 ? 'TERBUKA' : 'TERTUTUP';
     const targetBin = daftarTempatSampah.find(b => b.id === binId);
-    
+
     if (!targetBin) return;
 
     if (targetBin.isFirebase) {
@@ -342,8 +342,8 @@ function App() {
   const openServosCount = daftarTempatSampah.filter(b => b.servo === 1).length;
 
   const getLiquidColor = (pct) => {
-    if (pct > 80) return 'var(--status-red)';
-    if (pct > 50) return 'var(--status-orange)';
+    if (pct >= 80) return 'var(--status-red)';
+    if (pct >= 30) return 'var(--status-orange)';
     return 'var(--status-green)';
   };
 
@@ -368,7 +368,7 @@ function App() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (isLocked) return;
-    
+
     if (loginPassword === 'vokasi2026') {
       setIsLoggedIn(true);
       showToast('Autentikasi berhasil! Selamat datang Admin.', 'success');
@@ -391,7 +391,7 @@ function App() {
       <div className="app-layout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
         <div className="ambient-particles"></div>
         <div className="cursor-glow-ambient" ref={ambientRef}></div>
-        
+
         {/* Animated Background Orbs for Login */}
         <div style={{ position: 'absolute', top: '10%', left: '15%', width: '40vw', height: '40vw', background: 'var(--accent-blue-glow)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0, animation: 'floatAmbient1 20s infinite alternate' }}></div>
         <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: '35vw', height: '35vw', background: 'var(--status-green-glow)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0, animation: 'floatAmbient2 15s infinite alternate' }}></div>
@@ -415,8 +415,8 @@ function App() {
           {/* Top Edge Glow */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, transparent, var(--accent-blue), transparent)', opacity: 0.8 }}></div>
 
-          <div style={{ 
-            width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)', 
+          <div style={{
+            width: '72px', height: '72px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px',
             border: '1px solid rgba(255,255,255,0.08)',
             boxShadow: '0 10px 25px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.02)'
@@ -434,7 +434,7 @@ function App() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '36px', fontSize: '0.95rem' }}>
             Restricted Access. Authentication Required.
           </p>
-          
+
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ textAlign: 'left', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -443,15 +443,15 @@ function App() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
               </div>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="Administrator Password"
                 disabled={isLocked}
                 style={{
                   width: '100%', padding: '16px 16px 16px 48px', borderRadius: '14px',
-                  backgroundColor: 'rgba(0,0,0,0.3)', 
+                  backgroundColor: 'rgba(0,0,0,0.3)',
                   border: `1px solid ${isLocked || (loginAttempts > 0 && !isLocked) ? 'var(--status-red)' : 'rgba(255,255,255,0.08)'}`,
                   color: 'var(--text-primary)', fontSize: '1rem', outline: 'none', boxSizing: 'border-box',
                   transition: 'all 0.3s',
@@ -474,13 +474,13 @@ function App() {
                 </p>
               )}
             </div>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLocked || !loginPassword}
               style={{
                 padding: '16px', borderRadius: '14px', border: 'none',
-                background: isLocked ? 'rgba(0,0,0,0.3)' : 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%)', 
-                color: isLocked ? 'var(--text-muted)' : '#ffffff', 
+                background: isLocked ? 'rgba(0,0,0,0.3)' : 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%)',
+                color: isLocked ? 'var(--text-muted)' : '#ffffff',
                 fontWeight: '700', fontSize: '1.05rem', cursor: isLocked ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s',
                 boxShadow: isLocked ? 'none' : '0 8px 20px rgba(6, 182, 212, 0.25)',
@@ -519,8 +519,8 @@ function App() {
                 </div>
                 <div className="toast-message">{toast.message}</div>
               </div>
-              <button 
-                className="toast-close" 
+              <button
+                className="toast-close"
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
               >
                 &times;
@@ -537,7 +537,7 @@ function App() {
   return (
     <div className="app-layout">
       <div className="ambient-particles"></div>
-      
+
       <div className="cursor-glow-ambient" ref={ambientRef}></div>
 
       <aside className="sidebar">
@@ -549,47 +549,47 @@ function App() {
         </div>
 
         <nav className="sidebar-menu">
-          <button 
-            onClick={() => setActiveTab('overview')} 
+          <button
+            onClick={() => setActiveTab('overview')}
             className={`menu-item ${activeTab === 'overview' ? 'active' : ''}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="7" height="9" x="3" y="3" rx="1"/>
-              <rect width="7" height="5" x="14" y="3" rx="1"/>
-              <rect width="7" height="9" x="14" y="12" rx="1"/>
-              <rect width="7" height="5" x="3" y="16" rx="1"/>
+              <rect width="7" height="9" x="3" y="3" rx="1" />
+              <rect width="7" height="5" x="14" y="3" rx="1" />
+              <rect width="7" height="9" x="14" y="12" rx="1" />
+              <rect width="7" height="5" x="3" y="16" rx="1" />
             </svg>
             <span>Dashboard Overview</span>
           </button>
-          
-          <button 
-            onClick={() => setActiveTab('analytics')} 
+
+          <button
+            onClick={() => setActiveTab('analytics')}
             className={`menu-item ${activeTab === 'analytics' ? 'active' : ''}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+              <path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" />
             </svg>
             <span>Analytics & Tren</span>
           </button>
 
-          <button 
-            onClick={() => setActiveTab('logs')} 
+          <button
+            onClick={() => setActiveTab('logs')}
             className={`menu-item ${activeTab === 'logs' ? 'active' : ''}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
-              <path d="m12 3-1.912 5.886a1 1 0 0 1-.95.694H3l5.088 3.696a1 1 0 0 0 .363 1.118L6.538 20.28 12 16.5l5.462 3.78-1.913-5.886a1 1 0 0 0 .363-1.118L21 9.58h-6.138a1 1 0 0 1-.95-.694L12 3Z"/>
+              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+              <path d="m12 3-1.912 5.886a1 1 0 0 1-.95.694H3l5.088 3.696a1 1 0 0 0 .363 1.118L6.538 20.28 12 16.5l5.462 3.78-1.913-5.886a1 1 0 0 0 .363-1.118L21 9.58h-6.138a1 1 0 0 1-.95-.694L12 3Z" />
             </svg>
             <span>System Logs</span>
           </button>
         </nav>
 
         <div className="sidebar-footer">
-          
+
           <div className="theme-switcher-box">
             <span className="theme-label">Mode Tampilan</span>
             <div className="theme-options">
-              <button 
+              <button
                 onClick={() => {
                   setTheme('light');
                   addLog('THEME: Tampilan diubah ke MODE TERANG.', 'info');
@@ -600,7 +600,7 @@ function App() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                 Terang
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setTheme('dark');
                   addLog('THEME: Tampilan diubah ke MODE GELAP.', 'info');
@@ -611,7 +611,7 @@ function App() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 Gelap
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setTheme('auto');
                   addLog('THEME: Tampilan diubah ke OTOMATIS (Sistem OS).', 'info');
@@ -631,9 +631,9 @@ function App() {
               <span className="sim-desc">Fluktuasi data tiruan</span>
             </div>
             <label className="switch">
-              <input 
-                type="checkbox" 
-                checked={simulasiAktif} 
+              <input
+                type="checkbox"
+                checked={simulasiAktif}
                 onChange={(e) => {
                   setSimulasiAktif(e.target.checked);
                   addLog(`SYSTEM: Simulasi fluktuasi IoT ${e.target.checked ? 'DIAKTIFKAN' : 'DINONAKTIFKAN'}.`, 'info');
@@ -664,8 +664,8 @@ function App() {
             </div>
 
             <div className="header-right">
-              
-              <div 
+
+              <div
                 className={`notification-bell ${hasWarning ? 'ringing' : ''}`}
                 onClick={() => setShowNotifBox(!showNotifBox)}
               >
@@ -682,7 +682,7 @@ function App() {
                       {daftarTempatSampah.filter(b => b.kapasitas > 90).length > 0 ? (
                         daftarTempatSampah.filter(b => b.kapasitas > 90).map(b => (
                           <div key={b.id} className="notif-item warning">
-                            <strong>⚠️ {b.id} ({b.kapasitas}%)</strong><br/>
+                            <strong>⚠️ {b.id} ({b.kapasitas}%)</strong><br />
                             Hampir penuh di lokasi {b.lokasi}! Segera jadwalkan pengangkutan.
                           </div>
                         ))
@@ -702,11 +702,11 @@ function App() {
                     <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
                   </svg>
                 </span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari kode bin: TRASH-01..." 
+                  placeholder="Cari kode bin: TRASH-01..."
                   className="search-input-field"
                 />
               </div>
@@ -723,12 +723,12 @@ function App() {
 
           {activeTab === 'overview' && (
             <>
-              
+
               <section className="quick-stats-row">
                 <div className="stat-card">
                   <div className="stat-icon-box blue">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                     </svg>
                   </div>
                   <div className="stat-info">
@@ -740,7 +740,7 @@ function App() {
                 <div className={`stat-card ${warningBinsCount > 0 ? 'alert-pulse-card' : ''}`}>
                   <div className="stat-icon-box orange">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                     </svg>
                   </div>
                   <div className="stat-info">
@@ -754,7 +754,7 @@ function App() {
                 <div className="stat-card">
                   <div className="stat-icon-box blue">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                      <path d="M12 2v20" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                   </div>
                   <div className="stat-info">
@@ -766,8 +766,8 @@ function App() {
                 <div className="stat-card">
                   <div className="stat-icon-box green">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
                     </svg>
                   </div>
                   <div className="stat-info">
@@ -786,7 +786,7 @@ function App() {
                       <h3 className="bin-name">{dataTerpilih.lokasi}</h3>
                       <span className="bin-loc">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
                         </svg>
                         Gedung D3 TI UB
                       </span>
@@ -799,34 +799,34 @@ function App() {
                   <div className="trashbin-visualizer-container">
                     <svg viewBox="0 0 160 240" className="trashbin-svg" width="160" height="240">
                       <defs>
-                        
+
                         <clipPath id="bin-body-clip">
                           <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" />
                         </clipPath>
-                        
+
                         <linearGradient id="glass-reflect" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="rgba(255,255,255,0.15)"/>
-                          <stop offset="30%" stopColor="rgba(255,255,255,0.05)"/>
-                          <stop offset="70%" stopColor="rgba(255,255,255,0)"/>
-                          <stop offset="100%" stopColor="rgba(255,255,255,0.08)"/>
+                          <stop offset="0%" stopColor="rgba(255,255,255,0.15)" />
+                          <stop offset="30%" stopColor="rgba(255,255,255,0.05)" />
+                          <stop offset="70%" stopColor="rgba(255,255,255,0)" />
+                          <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
                         </linearGradient>
                       </defs>
 
-                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" 
-                            fill="var(--bin-body-bg)" 
-                            stroke="var(--bin-body-border)" 
-                            strokeWidth="3.5" 
-                            className={dataTerpilih.kapasitas > 80 ? 'warning-glow-bin' : ''} />
+                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z"
+                        fill="var(--bin-body-bg)"
+                        stroke="var(--bin-body-border)"
+                        strokeWidth="3.5"
+                        className={dataTerpilih.kapasitas > 80 ? 'warning-glow-bin' : ''} />
 
                       <g clipPath="url(#bin-body-clip)">
-                        
+
                         {(() => {
                           const pct = dataTerpilih.kapasitas;
                           const yLevel = 230 - (pct * 1.8);
                           return (
                             <g className="trash-level-group">
-                              
-                              <path 
+
+                              <path
                                 d={`M -40,${yLevel} 
                                     L 20,${yLevel} 
                                     L 40,${yLevel - 8} 
@@ -836,13 +836,13 @@ function App() {
                                     L 120,${yLevel - 2} 
                                     L 140,${yLevel} 
                                     L 210,${yLevel} 
-                                    L 210,240 L -40,240 Z`} 
-                                fill={currentLiquidColor} 
-                                opacity="0.85" 
+                                    L 210,240 L -40,240 Z`}
+                                fill={currentLiquidColor}
+                                opacity="0.85"
                                 className="bin-solid-path"
                               />
-                              
-                              <path 
+
+                              <path
                                 d={`M -40,${yLevel} 
                                     L 30,${yLevel + 5} 
                                     L 50,${yLevel - 5} 
@@ -852,18 +852,18 @@ function App() {
                                     L 130,${yLevel - 2} 
                                     L 150,${yLevel + 5} 
                                     L 210,${yLevel} 
-                                    L 210,240 L -40,240 Z`} 
-                                fill={currentLiquidColor} 
-                                opacity="0.4" 
+                                    L 210,240 L -40,240 Z`}
+                                fill={currentLiquidColor}
+                                opacity="0.4"
                                 className="bin-solid-path-back"
                               />
                               {pct > 20 && (
                                 <g className="trash-debris" fill="rgba(0,0,0,0.12)">
-                                  <polygon points={`45,${yLevel+15} 65,${yLevel+5} 75,${yLevel+20} 50,${yLevel+30}`} />
-                                  <polygon points={`85,${yLevel+10} 105,${yLevel+2} 115,${yLevel+15} 90,${yLevel+25}`} />
-                                  <polygon points={`55,${yLevel+35} 85,${yLevel+25} 95,${yLevel+45} 65,${yLevel+50}`} />
-                                  <polygon points={`75,${yLevel+55} 105,${yLevel+45} 120,${yLevel+60} 85,${yLevel+75}`} />
-                                  <polygon points={`40,${yLevel+60} 60,${yLevel+50} 70,${yLevel+70} 50,${yLevel+80}`} />
+                                  <polygon points={`45,${yLevel + 15} 65,${yLevel + 5} 75,${yLevel + 20} 50,${yLevel + 30}`} />
+                                  <polygon points={`85,${yLevel + 10} 105,${yLevel + 2} 115,${yLevel + 15} 90,${yLevel + 25}`} />
+                                  <polygon points={`55,${yLevel + 35} 85,${yLevel + 25} 95,${yLevel + 45} 65,${yLevel + 50}`} />
+                                  <polygon points={`75,${yLevel + 55} 105,${yLevel + 45} 120,${yLevel + 60} 85,${yLevel + 75}`} />
+                                  <polygon points={`40,${yLevel + 60} 60,${yLevel + 50} 70,${yLevel + 70} 50,${yLevel + 80}`} />
                                 </g>
                               )}
                             </g>
@@ -871,21 +871,21 @@ function App() {
                         })()}
                       </g>
 
-                      <path d="M 55,70 L 55,210 M 80,70 L 80,210 M 105,70 L 105,210" 
-                            stroke="var(--bin-rib-stroke)" 
-                            strokeWidth="3.5" 
-                            strokeLinecap="round" />
+                      <path d="M 55,70 L 55,210 M 80,70 L 80,210 M 105,70 L 105,210"
+                        stroke="var(--bin-rib-stroke)"
+                        strokeWidth="3.5"
+                        strokeLinecap="round" />
 
-                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z" 
-                            fill="url(#glass-reflect)" 
-                            pointerEvents="none" />
+                      <path d="M 30,50 L 130,50 L 130,220 C 130,225 125,230 120,230 L 40,230 C 35,230 30,225 30,220 Z"
+                        fill="url(#glass-reflect)"
+                        pointerEvents="none" />
 
-                      <path d="M 24,44 L 136,44 C 138,44 140,46 140,48 L 138,52 C 138,53 136,54 134,54 L 26,54 C 24,54 22,53 22,52 L 20,48 C 20,46 22,44 24,44 Z" 
-                            fill="var(--bg-secondary)" 
-                            stroke="var(--border-color)" 
-                            strokeWidth="3" />
+                      <path d="M 24,44 L 136,44 C 138,44 140,46 140,48 L 138,52 C 138,53 136,54 134,54 L 26,54 C 24,54 22,53 22,52 L 20,48 C 20,46 22,44 24,44 Z"
+                        fill="var(--bg-secondary)"
+                        stroke="var(--border-color)"
+                        strokeWidth="3" />
 
-                      <g 
+                      <g
                         className="bin-lid-group"
                         style={{
                           transform: dataTerpilih.servo === 1 ? 'rotate(-32deg)' : 'rotate(0deg)',
@@ -893,18 +893,18 @@ function App() {
                           transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                         }}
                       >
-                        
-                        <path d="M 22,36 L 138,36 C 141,36 143,38 143,40 L 143,44 L 17,44 L 17,40 C 17,38 19,36 22,36 Z" 
-                              fill="var(--bg-secondary)" 
-                              stroke="var(--border-color)" 
-                              strokeWidth="3" />
-                        
-                        <path d="M 66,36 L 70,28 L 90,28 L 94,36" 
-                              fill="none" 
-                              stroke="var(--border-color)" 
-                              strokeWidth="3" 
-                              strokeLinecap="round" />
-                        
+
+                        <path d="M 22,36 L 138,36 C 141,36 143,38 143,40 L 143,44 L 17,44 L 17,40 C 17,38 19,36 22,36 Z"
+                          fill="var(--bg-secondary)"
+                          stroke="var(--border-color)"
+                          strokeWidth="3" />
+
+                        <path d="M 66,36 L 70,28 L 90,28 L 94,36"
+                          fill="none"
+                          stroke="var(--border-color)"
+                          strokeWidth="3"
+                          strokeLinecap="round" />
+
                         <circle cx="80" cy="40" r="2.5" fill={dataTerpilih.servo === 1 ? 'var(--status-green)' : 'var(--status-red)'} className="lid-sensor-dot" />
                       </g>
 
@@ -943,11 +943,11 @@ function App() {
                       </div>
                     </div>
                     <div className="capacity-progress-track">
-                      <div 
-                        className="capacity-progress-fill" 
-                        style={{ 
-                          width: `${dataTerpilih.kapasitas}%`, 
-                          backgroundColor: currentLiquidColor 
+                      <div
+                        className="capacity-progress-fill"
+                        style={{
+                          width: `${dataTerpilih.kapasitas}%`,
+                          backgroundColor: currentLiquidColor
                         }}
                       ></div>
                     </div>
@@ -958,11 +958,11 @@ function App() {
                       <div className={`servo-icon-circle ${dataTerpilih.servo === 1 ? 'open' : 'closed'}`}>
                         {dataTerpilih.servo === 1 ? (
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" />
                           </svg>
                         ) : (
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                           </svg>
                         )}
                       </div>
@@ -975,15 +975,15 @@ function App() {
                     </div>
 
                     <div className="control-btn-group">
-                      <button 
-                        onClick={() => handleKontrol(dataTerpilih.id, 1)} 
+                      <button
+                        onClick={() => handleKontrol(dataTerpilih.id, 1)}
                         disabled={dataTerpilih.servo === 1}
                         className="btn-control open"
                       >
                         Buka Sampah
                       </button>
-                      <button 
-                        onClick={() => handleKontrol(dataTerpilih.id, 0)} 
+                      <button
+                        onClick={() => handleKontrol(dataTerpilih.id, 0)}
                         disabled={dataTerpilih.servo === 0}
                         className="btn-control close"
                       >
@@ -1012,23 +1012,23 @@ function App() {
                   <div className="map-container-svg" style={{ position: 'relative', overflow: 'hidden' }}>
                     <div className="radar-sweep"></div>
                     <svg className="map-canvas" viewBox="10 30 380 240" style={{ position: 'relative', zIndex: 2 }}>
-                      
+
                       <g className="map-grid-lines">
                         <path d="M 0,50 L 400,50 M 0,100 L 400,100 M 0,150 L 400,150 M 0,200 L 400,200 M 0,250 L 400,250" />
                         <path d="M 50,0 L 50,300 M 100,0 L 100,300 M 150,0 L 150,300 M 200,0 L 200,300 M 250,0 L 250,300 M 300,0 L 300,300 M 350,0 L 350,300" />
                       </g>
 
                       <path d="M 20,40 L 170,40 L 170,160 L 20,160 Z" className="map-wall" />
-                      
+
                       <path d="M 210,40 L 380,40 L 380,160 L 210,160 Z" className="map-wall" />
-                      
+
                       <path d="M 20,190 L 380,190 L 380,260 L 20,260 Z" className="map-wall" />
 
                       <text x="95" y="105" className="map-room-label">LAB IoT</text>
                       <text x="295" y="105" className="map-room-label">LAB KOMPUTER 2</text>
                       <text x="200" y="230" className="map-room-label" style={{ fontSize: '9px' }}>KORIDOR UTAMA D3</text>
 
-                      <g 
+                      <g
                         className={`map-pin ${selectedBinId === 'TRASH-01' ? 'selected' : ''}`}
                         onClick={() => handleSelectBin('TRASH-01')}
                       >
@@ -1041,7 +1041,7 @@ function App() {
                         </g>
                       </g>
 
-                      <g 
+                      <g
                         className={`map-pin ${selectedBinId === 'TRASH-02' ? 'selected' : ''}`}
                         onClick={() => handleSelectBin('TRASH-02')}
                       >
@@ -1054,7 +1054,7 @@ function App() {
                         </g>
                       </g>
 
-                      <g 
+                      <g
                         className={`map-pin ${selectedBinId === 'TRASH-03' ? 'selected' : ''}`}
                         onClick={() => handleSelectBin('TRASH-03')}
                       >
@@ -1081,7 +1081,7 @@ function App() {
                   {daftarTempatSampah.map((bin) => {
                     const binColor = getLiquidColor(bin.kapasitas);
                     return (
-                      <div 
+                      <div
                         key={bin.id}
                         onClick={() => handleSelectBin(bin.id)}
                         className={`bin-preview-card ${selectedBinId === bin.id ? 'selected' : ''}`}
@@ -1097,11 +1097,11 @@ function App() {
                         </div>
 
                         <div className="preview-meter-track">
-                          <div 
-                            className="preview-meter-fill" 
-                            style={{ 
-                              width: `${bin.kapasitas}%`, 
-                              backgroundColor: binColor 
+                          <div
+                            className="preview-meter-fill"
+                            style={{
+                              width: `${bin.kapasitas}%`,
+                              backgroundColor: binColor
                             }}
                           ></div>
                         </div>
@@ -1135,8 +1135,8 @@ function App() {
                   <svg className="svg-chart" viewBox="0 0 800 240" height="240">
                     <defs>
                       <linearGradient id="line-gradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--accent-blue)" stopOpacity="0.4"/>
-                        <stop offset="100%" stopColor="var(--accent-blue)" stopOpacity="0"/>
+                        <stop offset="0%" stopColor="var(--accent-blue)" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="var(--accent-blue)" stopOpacity="0" />
                       </linearGradient>
                     </defs>
 
@@ -1187,18 +1187,18 @@ function App() {
 
                       return (
                         <>
-                          
+
                           <polygon points={areaPoints} className="chart-line-area" />
 
-                          <path 
+                          <path
                             d={`M 100,${y1} 
                                 C 150,${y1} 150,${y2} 200,${y2} 
                                 C 250,${y2} 250,${y3} 300,${y3} 
                                 C 350,${y3} 350,${y4} 400,${y4} 
                                 C 450,${y4} 450,${y5} 500,${y5} 
                                 C 550,${y5} 550,${y6} 600,${y6} 
-                                C 650,${y6} 650,${y7} 700,${y7}`} 
-                            className="chart-line-path" 
+                                C 650,${y6} 650,${y7} 700,${y7}`}
+                            className="chart-line-path"
                           />
 
                           <circle cx="100" cy={y1} r="4" className="chart-node-point" />
@@ -1230,7 +1230,7 @@ function App() {
 
                 <div className="chart-svg-container">
                   <svg className="svg-chart" viewBox="0 0 800 200">
-                    
+
                     <g className="chart-gridline">
                       <line x1="60" y1="30" x2="760" y2="30" />
                       <line x1="60" y1="80" x2="760" y2="80" />
@@ -1267,50 +1267,50 @@ function App() {
 
           {activeTab === 'logs' && (
             <div className="logs-screen-container">
-              
+
               <div className="logs-controls">
                 <div className="logs-filter-group">
-                  <button 
-                    onClick={() => setLogFilter('all')} 
+                  <button
+                    onClick={() => setLogFilter('all')}
                     className={`btn-filter-log ${logFilter === 'all' ? 'active' : ''}`}
                   >
                     Semua ({logs.length})
                   </button>
-                  <button 
-                    onClick={() => setLogFilter('info')} 
+                  <button
+                    onClick={() => setLogFilter('info')}
                     className={`btn-filter-log ${logFilter === 'info' ? 'active' : ''}`}
                   >
                     Info
                   </button>
-                  <button 
-                    onClick={() => setLogFilter('success')} 
+                  <button
+                    onClick={() => setLogFilter('success')}
                     className={`btn-filter-log ${logFilter === 'success' ? 'active' : ''}`}
                   >
                     Sukses
                   </button>
-                  <button 
-                    onClick={() => setLogFilter('warning')} 
+                  <button
+                    onClick={() => setLogFilter('warning')}
                     className={`btn-filter-log ${logFilter === 'warning' ? 'active' : ''}`}
                   >
                     Peringatan
                   </button>
-                  <button 
-                    onClick={() => setLogFilter('error')} 
+                  <button
+                    onClick={() => setLogFilter('error')}
                     className={`btn-filter-log ${logFilter === 'error' ? 'active' : ''}`}
                   >
                     Error
                   </button>
                 </div>
 
-                <button 
+                <button
                   onClick={() => {
                     setLogs([]);
                     showToast('Log dibersihkan!', 'info');
-                  }} 
+                  }}
                   className="btn-clear-logs"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                   </svg>
                   Clear Console
                 </button>
@@ -1344,7 +1344,7 @@ function App() {
                       </div>
                     ))
                   )}
-                  
+
                   <div className="terminal-input-line">
                     <span>ubuntu@smartcity-iot:~$</span>
                     <span style={{ color: '#ffffff' }}>listen_ports --device=all --verbose</span>
@@ -1380,8 +1380,8 @@ function App() {
               </div>
               <div className="toast-message">{toast.message}</div>
             </div>
-            <button 
-              className="toast-close" 
+            <button
+              className="toast-close"
               onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
             >
               &times;
