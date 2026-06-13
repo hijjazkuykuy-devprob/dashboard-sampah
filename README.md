@@ -1,16 +1,32 @@
-# React + Vite
+# Smart Trash Pro 🗑️ - Real-Time IoT Monitoring Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Overview
+Smart Trash Pro is an advanced Internet of Things (IoT) web dashboard built to monitor trash capacity and remotely control a servo motor in real-time. Designed with a modern dark theme and glassmorphism UI, this application provides an intuitive interface for waste management monitoring.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
+**[👉 View Live Dashboard Here](https://dashboard-sampah.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 💻 Tech Stack
+- **Frontend Framework:** React.js (Vite)
+- **Styling:** CSS3 (Custom animations, Glassmorphism, Dark/Light Theme Support)
+- **Backend/Database:** Firebase Realtime Database
+- **Hardware Integration:** IoT NodeMCU/ESP8266 (Sensors & Servo via Firebase)
+- **Deployment:** Vercel
 
-## React Compiler
+## ✨ Key Features
+- **Real-Time Data Sync:** Instantly visualizes trash bin capacity updates from Firebase without refreshing.
+- **Remote Servo Control:** Interactive buttons to manually open/close the trash bin lid via IoT servo motors.
+- **Dynamic Visualizers:** Real-time waveform visualizers and progress bars representing bin capacity.
+- **Security & Rate Limiting:** Implemented security measures to prevent spamming the IoT commands.
+- **Responsive UI/UX:** Fully optimized dashboard layout that adapts perfectly to desktop, tablet, and mobile screens.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ⚙️ How It Works
+1. The physical IoT device (NodeMCU/ESP8266) reads the ultrasonic sensor data to determine the trash level.
+2. The data is pushed to **Firebase Realtime Database**.
+3. This React dashboard listens to the Firebase data stream and updates the UI instantly.
+4. When a user clicks "Buka Pintu" (Open Door), the React app sends a command to Firebase, which is then fetched by the IoT device to trigger the servo motor.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 👨‍💻 Developed By
+**Muhammad Abdillah Hijjaz Alfiqrie**
+- [LinkedIn Profile](https://www.linkedin.com/in/abdillah-hijjaz)
+- Role: Full-Stack Developer & IoT Integrator
